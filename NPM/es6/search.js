@@ -1,56 +1,27 @@
+import {YOUTUBE_API_KEY, request, getQuerySearch} from './config.js';
+export let PREV_TOKEN = '';
+export let NEXT_TOKEN = '';
+ 
 let YOUTUBE_API_URL_SEARCH = 'https://www.googleapis.com/youtube/v3/search/';
-//let YOUTUBE_API_KEY = 'AIzaSyDOfT_BO81aEZScosfTYMruJobmpjqNeEk';
-let YOUTUBE_API_KEY = 'AIzaSyCoejMFrTxc93iRK2MkuaSwHQHdm2BvqsI';
-let PREV_TOKEN = '';
-let NEXT_TOKEN = '';
+
 let keywords = '';
-let querySearch = '';
 
-$(".search-button").click(function(event) {
-	        event.preventDefault();
-	        keywords = $('input').val();
-	        requestSearch(getQuerySearch(keywords, 'submit'), getSearchData);
-	        document.title = `YouTube Search - ${keywords}`;
-
-		});
-
- $('.btn-next').click(function() {
+$(".search").on( 'click', '.search-button', 'click', function(event) { 
+            event.preventDefault();
+            keywords = $('input').val();
+            request(YOUTUBE_API_URL_SEARCH, getQuerySearch(keywords, 'submit'), getSearchData);
+            document.title = `YouTube Search - ${keywords}`;
+        });
+$(".container-fluid").on( 'click', '.btn-next', 'click', function(event) {  
             $('.btn-previous').removeAttr('disabled');
-            requestSearch(getQuerySearch(keywords, 'next'), getSearchData);
+            request(YOUTUBE_API_URL_SEARCH, getQuerySearch(keywords, 'next'), getSearchData);
         });
 
- $('.btn-previous').click(function() {
-            requestSearch(getQuerySearch(keywords, 'prev'), getSearchData);
-            if (PREV_TOKEN == undefined) {
-                $('.btn-previous').attr('disabled', true);
-            }
+$(".container-fluid").on( 'click', '.btn-previous', 'click', function(event) {  
+            request(YOUTUBE_API_URL_SEARCH, getQuerySearch(keywords, 'prev'), getSearchData); 
         });
 
-function getQuerySearch(searchTerm, task) {
-    querySearch = {
-        part: 'snippet',
-        key: YOUTUBE_API_KEY,
-        q: searchTerm,
-        maxResults: 10,
-        type: 'video'
-    }
-
-    if (task === 'next') {
-        querySearch.pageToken = NEXT_TOKEN;
-    }
-
-    if (task === 'prev') {
-        querySearch.pageToken = PREV_TOKEN;
-    }
-
-    return querySearch;
-}
-
-function requestSearch(query, callback) {
-    $.getJSON(YOUTUBE_API_URL_SEARCH, query, callback);
-}
-
-function getSearchData(data) {
+const getSearchData = (data) => {
 
     PREV_TOKEN = data.prevPageToken;
     NEXT_TOKEN = data.nextPageToken;
@@ -58,7 +29,7 @@ function getSearchData(data) {
                 $('.btn-previous').attr('disabled', true);
             }
     if (data.items.length !== 0) {
- 		$('.not-found').removeClass('d-flex');
+        $('.not-found').removeClass('d-flex');
         $('.not-found').addClass('d-none');
         $('.content').removeClass('d-none');
         $('.content').addClass('d-flex');
@@ -74,7 +45,7 @@ function getSearchData(data) {
       
         });
     } else {
-    	$('.btn-previous, .btn-next').addClass('d-none');
+        $('.btn-previous, .btn-next').addClass('d-none');
         $('.btn-previous, .btn-next').removeClass('d-flex');
         $('.not-found').removeClass('d-none');
         $('.not-found').addClass('d-flex');
